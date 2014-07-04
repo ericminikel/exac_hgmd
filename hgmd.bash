@@ -90,19 +90,12 @@ wc -l multiallelicsites.txt
 
 # try to get tables small enough to manage with R
 # - the dbSNP id is per site not variant, so that's useless. 
-cat annovcf.hgmdonly.table | head -1 | tr '\t' '\n' | \
-    egrep -n -w "CHROM|POS|REF|ALT|QUAL|FILTER|AC|AF|HGMD_GENE|HGMD_MUT|HGMD_SITE|HGNC_GENE|LOF|LOF_FLAG" | \
-    sed 's/:.*//' > desired_column_indices.txt
-awk_col_list=`cat desired_column_indices.txt | sed 's/^/$/' | tr '\n' ',' | sed 's/,$//'`
-echo "awk '{print "$awk_col_list"}'" > awk_command.bash
-head annovcf.hgmdonly.table | bash awk_command.bash
 
-/humgen/atgu1/fs03/lek/HGMD/Original/2012.4/hgmd-2012.4-alleles.zip
-
-
-
-
-
+cat annovcf.table | \
+    awk -f printbycolname.awk -F "\t" \
+    -v cols=CHROM,POS,REF,ALT,QUAL,FILTER,HGMD_MUT,HGMD_GENE,HGMD_SITE,HGNC_GENE,LOF,LOF_FLAG \
+    -v OFS="\t" \
+    > annovcf.ltd.table
 
 
 
