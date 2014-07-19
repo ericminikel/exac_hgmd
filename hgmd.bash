@@ -100,7 +100,7 @@ cat annovcf.table | \
 # whole table contains 11993923 rows
 # HGMD_MUT is non-NA in: 913494 of them
 # so now get only the HGMD_MUT mutations
-cat annovcf.ltd.table | awk '$11 != "NA" {print $0}' > annovcf.ltd.hgmdmutonly.table
+cat annovcf.ltd.table | awk -F"\t" '$11 != "NA" {print $0}' > annovcf.ltd.hgmdmutonly.table
 
 # and minrep them all
 cat annovcf.ltd.hgmdmutonly.table | minrep_file.py -p 2 -r 3 -a 4 -H > annovcf.ltd.hgmdmutonly.minrep.table
