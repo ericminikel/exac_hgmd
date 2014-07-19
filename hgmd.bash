@@ -93,9 +93,23 @@ wc -l multiallelicsites.txt
 
 cat annovcf.table | \
     awk -f printbycolname.awk -F "\t" \
-    -v cols=CHROM,POS,REF,ALT,QUAL,FILTER,HGMD_MUT,HGMD_GENE,HGMD_SITE,HGNC_GENE,LOF,LOF_FLAG \
+    -v cols=CHROM,POS,REF,ALT,QUAL,FILTER,AC,AN,AF,AA_CHANGE,HGMD_MUT,HGMD_GENE,HGMD_SITE,HGNC_GENE,LOF,LOF_FLAG \
     -v OFS="\t" \
     > annovcf.ltd.table
 
+# whole table contains 11993923 rows
+# HGMD_MUT is non-NA in: 913494 of them
+# so now get only the HGMD_MUT mutations
+cat annovcf.ltd.table | awk '$11 != "NA" {print $0}' > annovcf.ltd.hgmdmutonly.table
 
+# and minrep them all
+cat annovcf.ltd.hgmdmutonly.table | minrep_file.py -p 2 -r 3 -a 4 -H > annovcf.ltd.hgmdmutonly.minrep.table
+
+# design a create table statement for this
+cat /humgen/atgu1/fs03/eminikel/057hgmd/annovcf.ltd.table | head -1 | tr '\t' '\n'
+
+
+
+
+# copy the allmut table into my new database
 
