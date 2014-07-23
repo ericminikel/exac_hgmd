@@ -105,11 +105,17 @@ cat annovcf.ltd.table | awk -F"\t" '$11 != "NA" {print $0}' > annovcf.ltd.hgmdmu
 # and minrep them all
 cat annovcf.ltd.hgmdmutonly.table | minrep_file.py -p 2 -r 3 -a 4 -H > annovcf.ltd.hgmdmutonly.minrep.table
 
+# put original representation back in, for joining to masites table
+cat annovcf.ltd.hgmdmutonly.table | cut -f2,3,4 | sed 's/POS\tREF\tALT/ORIGPOS\tORIGREF\tORIGALT/' > annovcf.ltd.hgmdmutonly.origrep.3col
+paste annovcf.ltd.hgmdmutonly.minrep.table annovcf.ltd.hgmdmutonly.origrep.3col > annovcf.ltd.hgmdmutonly.bothrep.table
+
+# after all that effort, it turns out that POS and ORIGPOS are always the same in these cases
+cat annovcf.ltd.hgmdmutonly.bothrep.table | awk -F"\t" '$2 != $17 {print $0}' | less
+
 # design a create table statement for this
-cat /humgen/atgu1/fs03/eminikel/057hgmd/annovcf.ltd.table | head -1 | tr '\t' '\n'
+cat /humgen/atgu1/fs03/eminikel/057hgmd/annovcf.ltd.hgmdmutonly.bothrep.table | head -1 | tr '\t' '\n'
 
+# TO DO: need to remove or flag multi-allelic sites BEFORE converting to minimal representation
+# -- maybe add newpos, newref, newalt as add'l columns
 
-
-
-# copy the allmut table into my new database
 

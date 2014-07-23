@@ -1,9 +1,10 @@
+drop table if exists annovcf;
 create table annovcf (
     CHROM char(2),
     POS int,
     REF text,
     ALT text,
-    QUAL numeric,
+    QUAL float,
     FILTER text,
     AC int,
     AN int,
@@ -14,9 +15,13 @@ create table annovcf (
     HGMD_SITE text,
     HGNC_GENE text,
     LOF text,
-    LOF_FLAG text
+    LOF_FLAG text,
+    ORIGPOS int,
+    ORIGREF text,
+    ORIGALT text
 );
 
+drop table if exists masites;
 create table masites (
     CHROM char(2),
     POS int
@@ -79,7 +84,7 @@ from     annovcf v, allmut a
 where    a.chromosome = v.CHROM
 and      a.startCoord = v.POS
 and      not exists (
-             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.POS
+             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.ORIGPOS
          )
 ;
 -- 17533
@@ -114,7 +119,7 @@ limit 10
 select   count(*)
 from     annovcf v
 where     not exists (
-             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.POS
+             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.ORIGPOS
          )
 group by HGMD_MUT
 having   count(*) > 1
@@ -131,7 +136,7 @@ where    a.acc_num = v.HGMD_MUT
 and      a.tag = 'DM'
 and      not a.disease like '%?%'
 and      not exists (
-             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.POS
+             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.ORIGPOS
          )
 ;
 -- 17149
@@ -142,7 +147,7 @@ where    a.acc_num = v.HGMD_MUT
 and      a.tag = 'DM'
 and      not a.disease like '%?%'
 and      not exists (
-             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.POS
+             select null from masites ma where ma.CHROM = v.CHROM and ma.POS = v.ORIGPOS
          )
 order by v.AF desc
 limit 10
@@ -159,3 +164,6 @@ and      not exists (
 order by v.AF desc
 limit 10
 ;
+
+
+-- to do: need to remove multi-allelic sites BEFORE converting to minimal representation.
