@@ -2,7 +2,7 @@
 
 # set up some variables
 gatkjar=/humgen/gsa-hpprojects/GATK/bin/current/GenomeAnalysisTK.jar
-b37ref=/humgen/gsa-hpprojects/GATK/bundle/current/b37/human_g1k_v37.fasta
+b37ref=/seq/references/Homo_sapiens_assembly19/v1/Homo_sapiens_assembly19.fasta
 
 
 # HGMD Annotations
@@ -113,9 +113,19 @@ paste annovcf.ltd.hgmdmutonly.minrep.table annovcf.ltd.hgmdmutonly.origrep.3col 
 cat annovcf.ltd.hgmdmutonly.bothrep.table | awk -F"\t" '$2 != $17 {print $0}' | less
 
 # design a create table statement for this
-cat /humgen/atgu1/fs03/eminikel/057hgmd/annovcf.ltd.hgmdmutonly.bothrep.table | head -1 | tr '\t' '\n'
+cat annovcf.ltd.hgmdmutonly.bothrep.table | head -1 | tr '\t' '\n'
 
-# TO DO: need to remove or flag multi-allelic sites BEFORE converting to minimal representation
-# -- maybe add newpos, newref, newalt as add'l columns
+cat annovcf.table | cut -f14 | tail -n +2 > all_af.txt
+# now take random subset of lines
+# http://stackoverflow.com/a/692321/3806692
+awk 'BEGIN {srand()} !/^$/ { if (rand() <= .01) print $0}' all_af.txt > all_af_100th.txt
+
+# split HGMD AC 10-2000 variants into files of 100 vars each to submit to bhour -W 4:00
+mkdir allele_lists
+split hgmd_alleles_ac10to2000.txt -d -a 3 -l 100 allele_lists/
+
+# grab some basic annotations for all ExAC variants to bring into MySQL
+
+
 
 
